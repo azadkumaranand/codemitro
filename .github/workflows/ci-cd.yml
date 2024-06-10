@@ -47,4 +47,4 @@ jobs:
         REMOTE_PORT: "65002" # If you didn't add REMOTE_PORT as a secret, you can leave it hardcoded here
         ARGS: "-rltgoDzvO --delete"
         SOURCE: "public/"
-        TARGET: "/path/to/your/project"
+        TARGET: "/home/u415105283/public_html/"
