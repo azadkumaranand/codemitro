@@ -9,7 +9,7 @@ class Test extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'description', 'test_type', 'thumbnail'];
+    protected $fillable = ['title', 'description', 'test_type', 'status', 'thumbnail'];
 
     public function testResults(){
         return $this->hasMany('test_results', 'test_id');

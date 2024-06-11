@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('attachments', function (Blueprint $table) {
-            $table->string('chapter_id')->after('course_id')->change();
+            $table->string('chapter_id')->after('course_id')->nullable(false);
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('attachments', function (Blueprint $table) {
-            //
+            $table->dropColumn('chapter_id');
         });
     }
 };
