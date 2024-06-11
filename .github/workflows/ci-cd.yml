@@ -29,46 +29,70 @@ jobs:
           --health-retries=3
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.2
-          extensions: mbstring, zip, xml, gd, pdo_mysql
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.2
+        extensions: mbstring, zip, xml, gd, pdo_mysql
 
-      - name: Install Composer dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
+    - name: Install Composer dependencies
+      run: composer install --prefer-dist --no-progress --no-suggest
 
-      - name: Copy .env.example to .env
-        run: cp .env.example .env
+    - name: Copy .env.example to .env
+      run: cp .env.example .env
 
-      - name: Update .env for GitHub Actions
-        run: |
-          sed -i 's/DB_CONNECTION=mysql/DB_CONNECTION=mysql/' .env
-          sed -i 's/DB_HOST=127.0.0.1/DB_HOST=127.0.0.1/' .env
-          sed -i "s/DB_DATABASE=laravel/DB_DATABASE=${{ secrets.DB_DATABASE }}/" .env
-          sed -i "s/DB_USERNAME=root/DB_USERNAME=${{ secrets.DB_USERNAME }}/" .env
-          sed -i "s/DB_PASSWORD=/DB_PASSWORD=${{ secrets.DB_PASSWORD }}/" .env
+    - name: Update .env for GitHub Actions
+      run: |
+        sed -i 's/DB_CONNECTION=mysql/DB_CONNECTION=mysql/' .env
+        sed -i 's/DB_HOST=127.0.0.1/DB_HOST=127.0.0.1/' .env
+        sed -i "s/DB_DATABASE=laravel/DB_DATABASE=${{ secrets.DB_DATABASE }}/" .env
+        sed -i "s/DB_USERNAME=root/DB_USERNAME=${{ secrets.DB_USERNAME }}/" .env
+        sed -i "s/DB_PASSWORD=/DB_PASSWORD=${{ secrets.DB_PASSWORD }}/" .env
 
-      - name: Generate application key
-        run: php artisan key:generate
+    - name: Generate application key
+      run: php artisan key:generate
 
-      - name: Run migrations
-        run: php artisan migrate --force
+    - name: Run migrations
+      run: php artisan migrate --force
 
-      - name: Run tests
-        run: php artisan test
+    - name: Run tests
+      run: php artisan test
 
-      - name: Deploy to Server
-        if: github.ref == 'refs/heads/master'
-        uses: easingthemes/ssh-deploy@v2.0.7
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-          REMOTE_USER: ${{ secrets.REMOTE_USER }}
-          REMOTE_PORT: "65002"
-          ARGS: "-rltgoDzvO --delete"
-          SOURCE: "public/"
-          TARGET: "/home/u415105283/" # Replace with your actual target path
+    - name: Test SSH Connection
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
+        ssh -i ~/.ssh/id_rsa -p ${{ secrets.REMOTE_PORT }} ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "echo SSH connection successful"
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+        REMOTE_USER: ${{ secrets.REMOTE_USER }}
+        REMOTE_PORT: "65002"
+
+    - name: Debugging Step
+      run: |
+        echo "Checking environment variables:"
+        if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then echo "SSH_PRIVATE_KEY is not set"; else echo "SSH_PRIVATE_KEY is set"; fi
+        if [ -z "${{ secrets.REMOTE_HOST }}" ]; then echo "REMOTE_HOST is not set"; else echo "REMOTE_HOST is set"; fi
+        if [ -z "${{ secrets.REMOTE_USER }}" ]; then echo "REMOTE_USER is not set"; else echo "REMOTE_USER is set"; fi
+        if [ -z "${{ secrets.DB_DATABASE }}" ]; then echo "DB_DATABASE is not set"; else echo "DB_DATABASE is set"; fi
+        if [ -z "${{ secrets.DB_USERNAME }}" ]; then echo "DB_USERNAME is not set"; else echo "DB_USERNAME is set"; fi
+        if [ -z "${{ secrets.DB_PASSWORD }}" ]; then echo "DB_PASSWORD is not set"; else echo "DB_PASSWORD is set"; fi
+
+    - name: Deploy to Server
+      if: github.ref == 'refs/heads/master'
+      uses: easingthemes/ssh-deploy@v2.1.5
+      with:
+        args: "-rltgoDzvO --delete"
+        source: "public/"
+        target: "/home/${{ secrets.REMOTE_USER }}/"
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+        REMOTE_USER: ${{ secrets.REMOTE_USER }}
+        REMOTE_PORT: "65002"
