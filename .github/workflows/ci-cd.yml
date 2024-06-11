@@ -12,6 +12,22 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: u415105283_codemitro
+          MYSQL_USER: u415105283_codemitro
+          MYSQL_PASSWORD: "eh*kVCUZ7WD&WfN"
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -25,9 +41,15 @@ jobs:
     - name: Install Composer dependencies
       run: composer install --prefer-dist --no-progress --no-suggest
 
-    # Uncomment if you need to copy .env.example to .env
-    # - name: Copy .env.example to .env
-    #   run: cp .env.example .env
+    - name: Copy .env.example to .env
+      run: cp .env.example .env
+
+    - name: Update .env for GitHub Actions
+      run: |
+        sed -i 's/DB_HOST=127.0.0.1/DB_HOST=127.0.0.1/' .env
+        sed -i 's/DB_DATABASE=laravel/DB_DATABASE=u415105283_codemitro/' .env
+        sed -i 's/DB_USERNAME=root/DB_USERNAME=u415105283_codemitro/' .env
+        sed -i 's/DB_PASSWORD=/DB_PASSWORD="eh*kVCUZ7WD&WfN"/' .env
 
     - name: Generate application key
       run: php artisan key:generate
@@ -38,7 +60,6 @@ jobs:
     - name: Run tests
       run: php artisan test
 
-    # Debugging Step: Print environment variables and current directory
     - name: Debugging Step
       run: |
         echo "Printing environment variables:"
