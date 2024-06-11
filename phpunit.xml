@@ -28,7 +28,7 @@
         <env name="DB_PORT" value="3306"/>
         <env name="DB_DATABASE" value="u415105283_test_codemitro"/>
         <env name="DB_USERNAME" value="u415105283_test_codemitro"/>
-        <env name="DB_PASSWORD" value="eh*kVCUZ7WD&WfN"/>
+        <env name="DB_PASSWORD" value="eh*kVCUZ7WD&amp;WfN"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
