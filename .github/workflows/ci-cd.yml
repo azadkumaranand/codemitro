@@ -63,7 +63,7 @@ jobs:
 
     - name: Test SSH Connection
       run: |
-        echo "Debugging SSH Connection Step"
+        echo "Debugging Start SSH Connection Step"
         echo "SSH_PRIVATE_KEY is set"
         echo "REMOTE_HOST: ${{ secrets.REMOTE_HOST }}"
         echo "REMOTE_USER: ${{ secrets.REMOTE_USER }}"
