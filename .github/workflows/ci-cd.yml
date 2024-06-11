@@ -63,15 +63,16 @@ jobs:
 
     - name: Test SSH Connection
       run: |
-        echo "Debugging Start SSH Connection Step"
+        echo "Debugging SSH Connection Step"
         echo "SSH_PRIVATE_KEY is set"
         echo "REMOTE_HOST: ${{ secrets.REMOTE_HOST }}"
         echo "REMOTE_USER: ${{ secrets.REMOTE_USER }}"
+        echo "REMOTE_PORT: ${{ secrets.REMOTE_PORT }}"
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
-        ssh -i ~/.ssh/id_rsa -p ${{ secrets.REMOTE_PORT }} ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "echo SSH connection successful"
+        ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
+        ssh -vvv -i ~/.ssh/id_rsa -p ${{ secrets.REMOTE_PORT }} ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "echo SSH connection successful"
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
