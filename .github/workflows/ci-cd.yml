@@ -20,6 +20,7 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: 8.2
+        extensions: mbstring, zip, xml, gd, pdo_mysql
 
     - name: Install Composer dependencies
       run: composer install --prefer-dist --no-progress --no-suggest
@@ -37,6 +38,18 @@ jobs:
     - name: Run tests
       run: php artisan test
 
+    # Debugging Step: Print environment variables and current directory
+    - name: Debugging Step
+      run: |
+        echo "Printing environment variables:"
+        echo "SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}"
+        echo "REMOTE_HOST: ${{ secrets.REMOTE_HOST }}"
+        echo "REMOTE_USER: ${{ secrets.REMOTE_USER }}"
+        echo "Current directory:"
+        pwd
+        echo "Listing files:"
+        ls -la
+
     - name: Deploy to Server
       if: github.ref == 'refs/heads/master'
       uses: easingthemes/ssh-deploy@v2.0.7
@@ -44,7 +57,7 @@ jobs:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
         REMOTE_USER: ${{ secrets.REMOTE_USER }}
-        REMOTE_PORT: "65002" # If you didn't add REMOTE_PORT as a secret, you can leave it hardcoded here
+        REMOTE_PORT: "65002"
         ARGS: "-rltgoDzvO --delete"
         SOURCE: "public/"
-        TARGET: "/home/u415105283/public_html/"
+        TARGET: "/home/u415105283/"  # Replace with your actual target path
