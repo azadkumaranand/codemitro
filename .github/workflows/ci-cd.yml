@@ -63,6 +63,10 @@ jobs:
 
     - name: Test SSH Connection
       run: |
+        echo "Debugging SSH Connection Step"
+        echo "SSH_PRIVATE_KEY is set"
+        echo "REMOTE_HOST: ${{ secrets.REMOTE_HOST }}"
+        echo "REMOTE_USER: ${{ secrets.REMOTE_USER }}"
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
@@ -73,16 +77,6 @@ jobs:
         REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
         REMOTE_USER: ${{ secrets.REMOTE_USER }}
         REMOTE_PORT: "65002"
-
-    - name: Debugging Step
-      run: |
-        echo "Checking environment variables:"
-        if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then echo "SSH_PRIVATE_KEY is not set"; else echo "SSH_PRIVATE_KEY is set"; fi
-        if [ -z "${{ secrets.REMOTE_HOST }}" ]; then echo "REMOTE_HOST is not set"; else echo "REMOTE_HOST is set"; fi
-        if [ -z "${{ secrets.REMOTE_USER }}" ]; then echo "REMOTE_USER is not set"; else echo "REMOTE_USER is set"; fi
-        if [ -z "${{ secrets.DB_DATABASE }}" ]; then echo "DB_DATABASE is not set"; else echo "DB_DATABASE is set"; fi
-        if [ -z "${{ secrets.DB_USERNAME }}" ]; then echo "DB_USERNAME is not set"; else echo "DB_USERNAME is set"; fi
-        if [ -z "${{ secrets.DB_PASSWORD }}" ]; then echo "DB_PASSWORD is not set"; else echo "DB_PASSWORD is set"; fi
 
     - name: Deploy to Server
       if: github.ref == 'refs/heads/master'
